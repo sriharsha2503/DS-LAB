@@ -1,0 +1,144 @@
+
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+
+struct Stack {
+
+    int top;
+
+    unsigned capacity;
+
+    char* array;
+
+};
+
+struct Stack* createStack(unsigned capacity) {
+
+    struct Stack* stack = (struct Stack*)malloc(sizeof(struct Stack));
+
+    stack->capacity = capacity;
+
+    stack->top = -1;
+
+    stack->array = (char*)malloc(stack->capacity * sizeof(char));
+
+    return stack;
+
+}
+
+int isEmpty(struct Stack* stack) {
+
+    return stack->top == -1;
+
+}
+
+void push(struct Stack* stack, char item) {
+
+    stack->array[++stack->top] = item;
+
+}
+
+char pop(struct Stack* stack) {
+
+    return stack->array[stack->top--];
+
+}
+
+int precedence(char op) {
+
+    if (op == '+' || op == '-')
+
+        return 1;
+
+    if (op == '*' || op == '/')
+
+        return 2;
+
+    return 0;
+
+}
+
+void infixToPostfix(char* infix, char* postfix) {
+
+    struct Stack* stack = createStack(strlen(infix));
+
+    int i, j = 0;
+
+
+    strrev(infix);
+
+
+    for (i = 0; infix[i]; i++) {
+
+        char c = infix[i];
+
+
+        if (c >= 'a' && c <= 'z') {
+
+            postfix[j++] = c;
+
+        } else if (c == ')' || c == '+' || c == '-' || c == '*' || c == '/') {
+
+            while (!isEmpty(stack) && stack->array[stack->top] != '(' && precedence(c) <= precedence(stack->array[stack->top])) {
+
+                postfix[j++] = pop(stack);
+
+            }
+
+            push(stack, c);
+
+        } else if (c == '(') {
+
+            push(stack, c);
+
+        } else if (c == ')') {
+
+            while (!isEmpty(stack) && stack->array[stack->top] != '(') {
+
+                postfix[j++] = pop(stack);
+
+            }
+
+            if (!isEmpty(stack) && stack->array[stack->top] == '(') {
+
+                pop(stack);
+
+            }
+
+        }
+
+    }
+
+
+    while (!isEmpty(stack)) {
+
+        postfix[j++] = pop(stack);
+
+    }
+
+
+    postfix[j] = '\0';
+
+    strrev(postfix);
+
+}
+
+
+int main() {
+
+    char infix_expression[] = "a+b*(c-d)/e";
+
+    char postfix_expression[strlen(infix_expression)];
+
+    infixToPostfix(infix_expression, postfix_expression);
+
+    printf("Infix Expression: %s\n", infix_expression);
+
+    printf("Prefix Expression: %s\n", postfix_expression);
+
+    return 0;
+
+}

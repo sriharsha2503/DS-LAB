@@ -1,0 +1,116 @@
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+
+
+#define MAX_SIZE 100
+
+struct Stack {
+
+    int top;
+
+    char* array[MAX_SIZE];
+
+};
+
+struct Stack* createStack() {
+
+    struct Stack* stack = (struct Stack*)malloc(sizeof(struct Stack));
+
+    stack->top = -1;
+
+    return stack;
+
+}
+
+int isEmpty(struct Stack* stack) {
+
+    return stack->top == -1;
+
+}
+
+
+void push(struct Stack* stack, char* item) {
+
+    stack->array[++stack->top] = strdup(item);
+
+}
+
+char* pop(struct Stack* stack) {
+
+    if (!isEmpty(stack)) {
+
+        return stack->array[stack->top--];
+
+    }
+
+    return NULL;
+
+}
+
+char* prefixToPostfix(char* expression) {
+
+    struct Stack* stack = createStack();
+
+    int length = strlen(expression);
+
+    char temp[2];
+
+    strrev(expression);
+
+
+    for (int i = 0; i < length; i++) {
+
+        if (expression[i] >= '0' && expression[i] <= '9') {
+
+            temp[0] = expression[i];
+
+            temp[1] = '\0';
+
+            push(stack, temp);
+
+        } else if (expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/') {
+
+            char* operand1 = pop(stack);
+
+            char* operand2 = pop(stack);
+
+            char result[100];
+
+            strcpy(result, operand1);
+
+            strcat(result, operand2);
+
+            strcat(result, &expression[i]);
+
+            push(stack, result);
+
+        }
+
+    }
+
+
+    return pop(stack);
+
+}
+
+
+int main() {
+
+    char prefix_expression[] = "+*32*45";
+
+    char* postfix_expression = prefixToPostfix(prefix_expression);
+
+    printf("Prefix Expression: %s\n", prefix_expression);
+
+    printf("Postfix Expression: %s\n", postfix_expression);
+
+
+    free(postfix_expression); // Free dynamically allocated memory
+
+    return 0;
+
+}
+
